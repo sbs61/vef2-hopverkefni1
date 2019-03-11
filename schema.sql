@@ -1,17 +1,16 @@
 CREATE TABLE Categories (
   id SERIAL PRIMARY KEY,
-  title VARCHAR(128) UNIQUE NOT NULL,
+  name VARCHAR(128) UNIQUE NOT NULL
 );
 
 CREATE TABLE Products (
   id SERIAL PRIMARY KEY,
-  title VARCHAR(128) UNIQUE NOT NULL,
+  name VARCHAR(128) UNIQUE NOT NULL,
   price INT NOT NULL,
   descr TEXT NOT NULL,
   img VARCHAR(128),
   created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  category VARCHAR(128),
-  FOREIGN KEY category REFERENCES Categories(title)
+  category TEXT REFERENCES Categories(name)
 );
 
 CREATE TABLE Users (
@@ -19,22 +18,19 @@ CREATE TABLE Users (
   username VARCHAR(128) UNIQUE NOT NULL,
   password VARCHAR(128) NOT NULL,
   email VARCHAR(255) UNIQUE NOT NULL,
-  admin BOOLEAN DEFAULT FALSE,
+  admin BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE Carts (
+CREATE TABLE Orders (
   id SERIAL PRIMARY KEY,
   isorder BOOLEAN DEFAULT FALSE,
   created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  user VARCHAR(128),
-  FOREIGN KEY user REFERENCES Users(username)
+  order_user VARCHAR(128) REFERENCES Users(username)
 );
 
-CREATE TABLE Order (
-  id SERIAL PRIMARY KEY,
-  cart INT,
-  product INT,
-  FOREIGN KEY cart REFERENCES Carts(id),
-  FOREIGN KEY product REFERENCES Products(id),
+CREATE TABLE Order_items (
+  product_no INT REFERENCES Products,
+  order_id INT REFERENCES Orders,
   quantity INT,
+  PRIMARY KEY(product_no, order_id)
 );
