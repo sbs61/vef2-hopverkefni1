@@ -1,9 +1,40 @@
-CREATE TABLE projects (
-  id serial primary key,
-  title varchar(128) not null,
-  due timestamp with time zone,
-  position integer default 0,
-  completed boolean default false,
-  created timestamp with time zone not null default current_timestamp,
-  updated timestamp with time zone not null  default current_timestamp
+CREATE TABLE Categories (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(128) UNIQUE NOT NULL,
+);
+
+CREATE TABLE Products (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(128) UNIQUE NOT NULL,
+  price INT NOT NULL,
+  descr TEXT NOT NULL,
+  img VARCHAR(128),
+  created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  category VARCHAR(128),
+  FOREIGN KEY category REFERENCES Categories(title)
+);
+
+CREATE TABLE Users (
+  id SERIAL PRIMARY KEY,
+  username VARCHAR(128) UNIQUE NOT NULL,
+  password VARCHAR(128) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  admin BOOLEAN DEFAULT FALSE,
+);
+
+CREATE TABLE Carts (
+  id SERIAL PRIMARY KEY,
+  isorder BOOLEAN DEFAULT FALSE,
+  created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  user VARCHAR(128),
+  FOREIGN KEY user REFERENCES Users(username)
+);
+
+CREATE TABLE Order (
+  id SERIAL PRIMARY KEY,
+  cart INT,
+  product INT,
+  FOREIGN KEY cart REFERENCES Carts(id),
+  FOREIGN KEY product REFERENCES Products(id),
+  quantity INT,
 );
