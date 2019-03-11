@@ -1,0 +1,1 @@
+/* Hjálparföll fyrir staðfestingu á gögnum */

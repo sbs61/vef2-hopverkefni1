@@ -1,0 +1,1 @@
+/* Setja upp auðkenningu */
