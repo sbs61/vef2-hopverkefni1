@@ -11,7 +11,7 @@ CREATE TABLE Products (
   img VARCHAR(128),
   created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
   category TEXT,
-  FOREIGN KEY category REFERENCES Categories (name)
+  FOREIGN KEY (category) REFERENCES Categories(name)
 );
 
 CREATE TABLE Users (
@@ -27,7 +27,7 @@ CREATE TABLE Orders (
   isorder BOOLEAN DEFAULT FALSE,
   created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
   order_user VARCHAR(128),
-  FOREIGN KEY order_user REFERENCES Users (username)
+  FOREIGN KEY (order_user) REFERENCES Users (username)
 );
 
 CREATE TABLE Order_items (
