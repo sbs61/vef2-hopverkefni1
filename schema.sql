@@ -10,7 +10,8 @@ CREATE TABLE Products (
   descr TEXT NOT NULL,
   img VARCHAR(128),
   created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  category TEXT REFERENCES Categories(name)
+  category TEXT,
+  FOREIGN KEY (category) REFERENCES Categories (name)
 );
 
 CREATE TABLE Users (
