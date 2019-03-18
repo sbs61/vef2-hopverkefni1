@@ -29,6 +29,29 @@ async function query(sqlQuery, values = []) {
   return result;
 }
 
+async function paged(sqlQuery, { offset = 0, limit = 10, values = [] }) {
+  const sqlLimit = values.length + 1;
+  const sqlOffset = values.length + 2;
+  const pagedQuery = `${sqlQuery} LIMIT $${sqlLimit} OFFSET $${sqlOffset}`;
+
+  const limitAsNumber = Number(limit);
+  const offsetAsNumber = Number(offset);
+
+  const cleanLimit = Number.isInteger(limitAsNumber) && limitAsNumber > 0 ? limitAsNumber : 10;
+  const cleanOffset = Number.isInteger(offsetAsNumber) && offsetAsNumber > 0 ? offsetAsNumber : 0;
+
+  const combinedValues = values.concat([cleanLimit, cleanOffset]);
+
+  const result = await query(pagedQuery, combinedValues);
+
+  return {
+    limit: cleanLimit,
+    offset: cleanOffset,
+    items: result.rows,
+  };
+}
+
 module.exports = {
   query,
+  paged,
 };

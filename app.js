@@ -2,7 +2,8 @@ require('dotenv').config();
 
 const express = require('express');
 
-const api = require('./api/index');
+const auth = require('./auth');
+const api = require('./api');
 
 const {
   PORT: port = 3000,
@@ -10,10 +11,10 @@ const {
 } = process.env;
 
 const app = express();
-
 app.use(express.json());
 
-app.use(api);
+app.use(auth);
+app.use('/', api);
 
 function notFoundHandler(req, res, next) { // eslint-disable-line
   console.warn('Not found', req.originalUrl);

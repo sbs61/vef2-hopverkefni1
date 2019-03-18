@@ -1,20 +1,16 @@
 const express = require('express');
 
-/*
-const {
-  list,
-  update,
-  getOne,
-  createNew,
-  deleteProject,
-} = require('./todos');
-*/
-
 const router = express.Router();
+const { requireAuth } = require('../auth');
+
+const {
+  usersRoute,
+} = require('./users');
 
 function catchErrors(fn) {
   return (req, res, next) => fn(req, res, next).catch(next);
 }
+
 
 /**
  * Display all projects in database with GET request
@@ -61,5 +57,6 @@ async function listRoute(req, res) {
 }
 
 router.get('/', catchErrors(listRoute));
+router.get('/users', requireAuth, catchErrors(usersRoute));
 
 module.exports = router;
