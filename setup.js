@@ -54,7 +54,7 @@ async function main() {
   const prodNames = [];
   while (products.length < 1000) {
     const prodName = faker.commerce.productName();
-    const prodPrice = Math.floor(Math.random() * 5000);
+    const prodPrice = faker.commerce.price();
     const prodDesc = faker.lorem.paragraphs();
     const prodImg = `img/img${Math.floor(Math.random() * 20)}.jpg`;
     const prodCat = categories[Math.floor(Math.random() * categories.length)];
