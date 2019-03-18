@@ -4,10 +4,9 @@ require('dotenv').config();
 
 const fs = require('fs');
 const util = require('util');
+const faker = require('faker');
 
 const { query } = require('./db');
-
-const faker = require('faker');
 
 const connectionString = process.env.DATABASE_URL;
 
