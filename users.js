@@ -60,7 +60,7 @@ async function updateUser(id, password, email) {
 
   const fields = [
     isset(password) ? 'password' : null,
-    isset(email) ? 'name' : null,
+    isset(email) ? 'email' : null,
   ];
 
   let hashedPassword = null;

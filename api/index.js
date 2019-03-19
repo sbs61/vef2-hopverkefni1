@@ -5,7 +5,16 @@ const { requireAuth } = require('../auth');
 
 const {
   usersRoute,
+  userRoute,
+  userPatchRoute,
+  meRoute,
+  mePatchRoute,
 } = require('./users');
+
+const {
+  productsRoute,
+  createProductRoute,
+} = require('./products');
 
 function catchErrors(fn) {
   return (req, res, next) => fn(req, res, next).catch(next);
@@ -19,7 +28,7 @@ function catchErrors(fn) {
  */
 async function listRoute(req, res) {
   const list = {
-    PossibleMethods: [ // accounting is an array in employees.
+    PossibleMethods: [ 
       {
         Users: [
           {
@@ -49,14 +58,20 @@ async function listRoute(req, res) {
           },
         ],
       },
-    ], // End "accounting" array.
+    ],
 
-  }; // End Employees
+  };
 
   return res.status(200).json(list);
 }
 
 router.get('/', catchErrors(listRoute));
 router.get('/users', requireAuth, catchErrors(usersRoute));
+router.get('/users/me', requireAuth, catchErrors(meRoute));
+router.get('/users/:id', requireAuth, catchErrors(userRoute));
+router.patch('/users/:id', requireAuth, catchErrors(userPatchRoute));
+router.patch('/users/me', requireAuth, catchErrors(mePatchRoute));
+router.get('/products', requireAuth, catchErrors(productsRoute));
+router.post('/products', requireAuth, catchErrors(createProductRoute));
 
 module.exports = router;
