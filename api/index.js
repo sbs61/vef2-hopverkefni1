@@ -1,7 +1,7 @@
 const express = require('express');
 
 const router = express.Router();
-const { requireAuth } = require('../auth');
+const { requireAuth, requireAdmin } = require('../auth');
 
 const {
   usersRoute,
@@ -28,7 +28,7 @@ function catchErrors(fn) {
  */
 async function listRoute(req, res) {
   const list = {
-    PossibleMethods: [ 
+    PossibleMethods: [
       {
         Users: [
           {
@@ -69,7 +69,7 @@ router.get('/', catchErrors(listRoute));
 router.get('/users', requireAuth, catchErrors(usersRoute));
 router.get('/users/me', requireAuth, catchErrors(meRoute));
 router.get('/users/:id', requireAuth, catchErrors(userRoute));
-router.patch('/users/:id', requireAuth, catchErrors(userPatchRoute));
+router.patch('/users/:id', requireAdmin, catchErrors(userPatchRoute));
 router.patch('/users/me', requireAuth, catchErrors(mePatchRoute));
 router.get('/products', requireAuth, catchErrors(productsRoute));
 router.post('/products', requireAuth, catchErrors(createProductRoute));
