@@ -1,3 +1,4 @@
+const validator = require('validator');
 const users = require('./users');
 const { query } = require('./db');
 
@@ -14,11 +15,13 @@ const invalidField = (s, maxlen) => {
 };
 const isEmpty = s => s != null && !s;
 
-async function validateUser({ username, password, email }, patch = false) {
+async function validateUser({
+  username, password, email, admin,
+}, patch = false) {
   const validationMessages = [];
 
   // can't patch username
-  if (!patch) {
+  if (!patch || username || isEmpty(username)) {
     const m = 'Username is required, must be at least three letters and no more than 32 characters';
     if (typeof username !== 'string' || username.length < 3 || username.length > 32) {
       validationMessages.push({ field: 'username', message: m });
@@ -48,6 +51,31 @@ async function validateUser({ username, password, email }, patch = false) {
       validationMessages.push({
         field: 'email',
         message: 'Email is required, must not be empty or longer than 64 characters',
+      });
+    }
+
+    if (!validator.isEmail(email)) {
+      validationMessages.push({
+        field: 'email',
+        message: 'Email must be a real email',
+      });
+    }
+
+    const user = await users.findByEmail(email);
+
+    if (user) {
+      validationMessages.push({
+        field: 'email',
+        message: 'Email is already registered',
+      });
+    }
+  }
+
+  if (admin || isEmpty(admin)) {
+    if (typeof admin !== 'boolean') {
+      validationMessages.push({
+        field: 'admin',
+        message: 'admin must be boolean',
       });
     }
   }
