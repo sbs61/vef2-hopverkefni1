@@ -1,5 +1,6 @@
 # Admin user
 username: admin
+ 
 password: blablablabla
 
 # Hópverkefni 1
