@@ -76,7 +76,6 @@ async function updateUser(id, username, password, email, admin) {
     isset(email) ? 'email' : null,
     isset(admin) ? 'admin' : null,
   ];
-  console.log(fields);
 
   let hashedPassword = null;
 
@@ -94,8 +93,6 @@ async function updateUser(id, username, password, email, admin) {
   if (values[3] === '') {
     values[3] = 'false';
   }
-
-  console.log(values);
 
   const result = await conditionalUpdate('users', id, fields, values);
 
