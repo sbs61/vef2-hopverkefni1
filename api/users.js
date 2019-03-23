@@ -1,5 +1,5 @@
 const { findById, updateUser } = require('../users');
-const { query, paged } = require('../db');
+const { paged } = require('../db');
 const { validateUser } = require('../validation');
 
 // leyfum abstraction sem users.js gefur okkur að leka aðeins hérna

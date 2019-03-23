@@ -13,6 +13,9 @@ const {
 
 const {
   productsRoute,
+  productRoute,
+  productPatchRoute,
+  productDeleteRoute,
   createProductRoute,
 } = require('./products');
 
@@ -72,6 +75,9 @@ router.get('/users/:id', requireAuth, catchErrors(userRoute));
 router.patch('/users/:id', requireAdmin, catchErrors(userPatchRoute));
 router.patch('/users/me', requireAuth, catchErrors(mePatchRoute));
 router.get('/products', requireAuth, catchErrors(productsRoute));
-router.post('/products', requireAuth, catchErrors(createProductRoute));
+router.get('/products/:id', requireAuth, catchErrors(productRoute));
+router.patch('/products/:id', requireAdmin, catchErrors(productPatchRoute));
+router.delete('/products/:id', requireAuth, catchErrors(productDeleteRoute));
+router.post('/products', requireAdmin, catchErrors(createProductRoute));
 
 module.exports = router;
