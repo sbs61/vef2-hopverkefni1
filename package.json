@@ -14,24 +14,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-<<<<<<< HEAD
-    "dotenv": "^6.2.0",
-=======
     "bcrypt": "^3.0.4",
     "cloudinary": "^1.13.2",
     "dotenv": "6.2.0",
->>>>>>> dc050bf812ab95fa7387c6f3c4a2e2c0c2ccd453
     "express": "^4.16.4",
     "faker": "^4.1.0",
     "jsonwebtoken": "^8.5.1",
     "multer": "^1.4.1",
     "passport": "^0.4.0",
-<<<<<<< HEAD
-    "pg": "^7.8.0",
-=======
     "passport-jwt": "^4.0.0",
     "pg": "7.8.0",
->>>>>>> dc050bf812ab95fa7387c6f3c4a2e2c0c2ccd453
     "validator": "^10.11.0",
     "xss": "^1.0.3"
   },
