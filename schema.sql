@@ -11,7 +11,7 @@ CREATE TABLE Products (
   img VARCHAR(128),
   created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
   category TEXT,
-  FOREIGN KEY (category) REFERENCES Categories(name)
+  FOREIGN KEY (category) REFERENCES Categories(name) ON UPDATE CASCADE
 );
 
 CREATE TABLE Users (

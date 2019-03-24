@@ -1,6 +1,6 @@
 const xss = require('xss');
 const { query, conditionalUpdate } = require('../db');
-const { validateProduct } = require('../validation');
+const { validateProduct, validateCategory } = require('../validation');
 
 
 async function productsRoute(req, res) {
@@ -126,9 +126,107 @@ async function createProductRoute(req, res) {
   const result = await query(q, [name, price, descr, category]);
   console.info(result);
 
+  return res.json(result);
+}
+
+async function categoryRoute(req, res) {
+  const result = await query('SELECT * from categories');
+  console.info(result);
+
+  if (result.rowCount === 0) {
+    return res.status(404).json({ error: 'Categories not found' });
+  }
+
+  return res.json(result.rows);
+}
+
+async function createCategoryRoute(req, res) {
+  const {
+    name,
+  } = req.body;
+
+  const validationMessage = await validateCategory({
+    name,
+  });
+
+  if (validationMessage.length > 0) {
+    return res.status(400).json({ errors: validationMessage });
+  }
+
+  const q = `
+    INSERT INTO
+      categories (name)
+    VALUES
+      ($1)
+    RETURNING *`;
+
+  const result = await query(q, [name]);
+  console.info(result);
+
   return res.status(201).json(result.rows);
 }
 
+async function categoryPatchRoute(req, res) {
+  const { id } = req.params;
+
+  if (!Number.isInteger(Number(id))) {
+    return res.status(404).json({ error: 'Category not found' });
+  }
+
+  const category = await query('SELECT * FROM categories WHERE id = $1', [id]);
+
+  if (category.rowCount === 0) {
+    return res.status(404).json({ error: 'Category not found' });
+  }
+
+  const validationMessage = await validateProduct(req.body, id, true);
+
+  if (validationMessage.length > 0) {
+    return res.status(400).json({ errors: validationMessage });
+  }
+
+  const isset = f => typeof f === 'string' || typeof f === 'number';
+
+  const fields = [
+    isset(req.body.name) ? 'name' : null,
+  ];
+
+  const values = [
+    isset(req.body.name) ? xss(req.body.name) : null,
+  ];
+
+  // Ath. hvort nafn sé nú þegar í gagnagrunn
+  const nameChecker = await query('SELECT 1 FROM categories WHERE name = $1', values);
+  if (nameChecker.rowCount === 1) {
+    return res.status(400).json({ error: 'Category name already exists'});
+  }
+
+  const result = await conditionalUpdate('categories', id, fields, values);
+
+  if (!result) {
+    return res.status(400).json({ error: 'Nothing to patch' });
+  }
+
+  return res.status(201).json(result.rows[0]);
+}
+
+async function categoryDeleteRoute(req, res) {
+  const { id } = req.params;
+  console.info(id);
+  if (!Number.isInteger(Number(id))) {
+    return res.status(404).json({ error: 'Category not found' });
+  }
+
+  const category = await query('SELECT * FROM categories WHERE id = $1', [id]);
+
+  if (category.rowCount === 0) {
+    return res.status(404).json({ error: 'Category not found' });
+  }
+
+  query('DELETE FROM categories WHERE id = $1', [id]);
+
+  return res.status(200).json('Category deleted');
+}
 
 module.exports = {
   productsRoute,
@@ -136,4 +234,8 @@ module.exports = {
   productPatchRoute,
   productDeleteRoute,
   createProductRoute,
+  categoryRoute,
+  createCategoryRoute,
+  categoryPatchRoute,
+  categoryDeleteRoute,
 };

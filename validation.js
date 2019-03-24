@@ -162,7 +162,25 @@ async function validateProduct({
   return messages;
 }
 
+async function validateCategory({
+  name,
+} = {}, patch = false) {
+  const messages = [];
+
+  if (!patch || name || isEmpty(name)) {
+    if ((typeof name !== 'string' || name.length === 0 || name.length > 128)) {
+      messages.push({
+        field: 'name',
+        message: 'Name is required and must not be empty and no longer than 128 characters',
+      });
+    }
+  }
+
+  return messages;
+}
+
 module.exports = {
   validateUser,
   validateProduct,
+  validateCategory,
 };
