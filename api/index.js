@@ -28,7 +28,7 @@ function catchErrors(fn) {
  */
 async function listRoute(req, res) {
   const list = {
-    PossibleMethods: [ 
+    PossibleMethods: [
       {
         Users: [
           {

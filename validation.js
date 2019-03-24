@@ -1,4 +1,7 @@
 const users = require('./users');
+require('dotenv').config();
+
+const COMMONPASSWORDS = process.env.COMMONPASSWORDS.split(' ');
 
 const isEmpty = s => s != null && !s;
 
@@ -23,11 +26,22 @@ async function validateUser({ username, password, email }, patch = false) {
   }
 
   if (!patch || password || isEmpty(password)) {
-    if (typeof password !== 'string' || password.length < 6) {
+    if (typeof password !== 'string' || password.length < 8) {
       validationMessages.push({
         field: 'password',
-        message: 'Password must be at least six letters',
+        message: 'Password must be at least eight letters',
       });
+    }
+    else {
+      for (let i = 0; i < COMMONPASSWORDS.length; i += 1) {
+        if (password === COMMONPASSWORDS[i]) {
+          validationMessages.push({
+            field: 'password',
+            message: 'This password is common and therefore insecure, please pick another.',
+          });
+          break;
+        }
+      }
     }
   }
 
