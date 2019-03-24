@@ -1,7 +1,7 @@
 const express = require('express');
 
 const router = express.Router();
-const { requireAuth } = require('../auth');
+const { requireAuth, requireAdmin } = require('../auth');
 
 const {
   usersRoute,
@@ -13,6 +13,9 @@ const {
 
 const {
   productsRoute,
+  productRoute,
+  productPatchRoute,
+  productDeleteRoute,
   createProductRoute,
 } = require('./products');
 
@@ -69,9 +72,12 @@ router.get('/', catchErrors(listRoute));
 router.get('/users', requireAuth, catchErrors(usersRoute));
 router.get('/users/me', requireAuth, catchErrors(meRoute));
 router.get('/users/:id', requireAuth, catchErrors(userRoute));
-router.patch('/users/:id', requireAuth, catchErrors(userPatchRoute));
+router.patch('/users/:id', requireAdmin, catchErrors(userPatchRoute));
 router.patch('/users/me', requireAuth, catchErrors(mePatchRoute));
 router.get('/products', requireAuth, catchErrors(productsRoute));
-router.post('/products', requireAuth, catchErrors(createProductRoute));
+router.get('/products/:id', requireAuth, catchErrors(productRoute));
+router.patch('/products/:id', requireAdmin, catchErrors(productPatchRoute));
+router.delete('/products/:id', requireAuth, catchErrors(productDeleteRoute));
+router.post('/products', requireAdmin, catchErrors(createProductRoute));
 
 module.exports = router;

@@ -1,5 +1,5 @@
 const { findById, updateUser } = require('../users');
-const { query, paged } = require('../db');
+const { paged } = require('../db');
 const { validateUser } = require('../validation');
 
 // leyfum abstraction sem users.js gefur okkur að leka aðeins hérna
@@ -38,15 +38,19 @@ async function userPatchRoute(req, res) {
     return res.status(404).json({ error: 'User not found' });
   }
 
-  const { password, email } = req.body;
+  const {
+    username, password, email, admin,
+  } = req.body;
 
-  const validationMessage = await validateUser({ password, email }, true);
+  const validationMessage = await validateUser({
+    username, password, email, admin,
+  }, true);
 
   if (validationMessage.length > 0) {
     return res.status(400).json({ errors: validationMessage });
   }
 
-  const result = await updateUser(id, password, email);
+  const result = await updateUser(id, username, password, email, admin);
 
   if (!result) {
     return res.status(400).json({ error: 'Nothing to patch' });

@@ -20,6 +20,18 @@ async function findByUsername(username) {
   return null;
 }
 
+async function findByEmail(email) {
+  const q = 'SELECT * FROM users WHERE email = $1';
+
+  const result = await query(q, [email]);
+
+  if (result.rowCount === 1) {
+    return result.rows[0];
+  }
+
+  return null;
+}
+
 async function findById(id) {
   if (!Number.isInteger(Number(id))) {
     return null;
@@ -51,16 +63,18 @@ async function createUser(username, password, email) {
   return result.rows[0];
 }
 
-async function updateUser(id, password, email) {
+async function updateUser(id, username, password, email, admin) {
   if (!Number.isInteger(Number(id))) {
     return null;
   }
 
-  const isset = f => typeof f === 'string' || typeof f === 'number';
+  const isset = f => typeof f === 'string' || typeof f === 'number' || typeof f === 'boolean';
 
   const fields = [
+    isset(username) ? 'username' : null,
     isset(password) ? 'password' : null,
     isset(email) ? 'email' : null,
+    isset(admin) ? 'admin' : null,
   ];
 
   let hashedPassword = null;
@@ -70,9 +84,15 @@ async function updateUser(id, password, email) {
   }
 
   const values = [
+    isset(username) ? xss(username) : null,
     hashedPassword,
     isset(email) ? xss(email) : null,
+    isset(admin) ? xss(admin) : null,
   ];
+
+  if (values[3] === '') {
+    values[3] = 'false';
+  }
 
   const result = await conditionalUpdate('users', id, fields, values);
 
@@ -86,6 +106,7 @@ async function updateUser(id, password, email) {
 module.exports = {
   comparePasswords,
   findByUsername,
+  findByEmail,
   findById,
   createUser,
   updateUser,
