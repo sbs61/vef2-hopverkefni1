@@ -1,8 +1,9 @@
 const validator = require('validator');
 const users = require('./users');
+const json = require('./commonPasswords.json');
 require('dotenv').config();
 
-const COMMONPASSWORDS = process.env.COMMONPASSWORDS.split(' ');
+const commonpasswords = json.commonPasswords.split(' ');
 const { query } = require('./db');
 
 const invalidField = (s, maxlen) => {
@@ -48,8 +49,8 @@ async function validateUser({
       });
     }
     else {
-      for (let i = 0; i < COMMONPASSWORDS.length; i += 1) {
-        if (password === COMMONPASSWORDS[i]) {
+      for (let i = 0; i < commonpasswords.length; i += 1) {
+        if (password === commonpasswords[i]) {
           validationMessages.push({
             field: 'password',
             message: 'This password is common and therefore insecure, please pick another.',
