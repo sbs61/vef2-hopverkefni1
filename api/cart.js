@@ -58,8 +58,7 @@ async function cartPostRoute(req, res) {
       INSERT INTO
         Orders (order_userId)
       VALUES
-        ($1)
-      RETURNING id`;
+        ($1)`;
 
     await query(q, [id]);
 
@@ -72,6 +71,8 @@ async function cartPostRoute(req, res) {
       VALUES
         ($1, $2, $3)
       RETURNING *`;
+
+  orderId = await query('SELECT id FROM Orders WHERE order_userId = $1 AND is_order = false', [id]);
   orderId = orderId.rows[0].id;
   const result = await query(q2, [productId, orderId, quantity]);
 
@@ -87,10 +88,13 @@ async function cartLineRoute(req, res) {
     return res.status(404).json({ error: 'Cart line not found' });
   }
 
-  let userOrderId = await query('SELECT id from Orders WHERE order_userId = $1', [id]);
-  userOrderId = userOrderId.rows[0].id;
+  const userOrderId = await query('SELECT id from Orders WHERE order_userId = $1', [id]);
 
-  const result = await query('SELECT * FROM Order_items WHERE order_id = $1', [userOrderId]);
+  if (userOrderId.rows.length === 0) {
+    return res.status(404).json({ error: 'Cart line not found' });
+  }
+
+  const result = await query('SELECT * FROM Order_items WHERE order_id = $1', [userOrderId.rows[0].id]);
   if (result.rows[lineNr] === undefined) {
     return res.status(404).json({ error: 'Cart line not found' });
   }
@@ -204,6 +208,10 @@ async function ordersRoute(req, res) {
     orders = await query('SELECT * FROM Orders WHERE is_order = TRUE ORDER BY created desc');
   } else {
     orders = await query('SELECT * FROM Orders WHERE is_order = TRUE AND order_userId = $1 ORDER BY created desc', [id]);
+  }
+
+  if (orders.rows.length === 0) {
+    return res.status(404).json({ error: 'Orders not found' });
   }
 
   return res.status(200).json(orders.rows);
