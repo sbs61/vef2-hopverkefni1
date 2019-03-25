@@ -72,7 +72,7 @@ async function listRoute(req, res) {
             '/cart': 'GET, POST',
             '/cart/line/:id': 'GET, PATCH, DELETE',
             '/orders': 'GET, POST',
-            '/orders/:id': 'GET, PATCH, DELETE',
+            '/orders/:id': 'GET',
           },
         ],
       },

@@ -9,20 +9,12 @@ app.use(express.json());
 const users = require('./users');
 const { validateUser } = require('./validation');
 
-const {
-  JWT_SECRET: jwtSecret,
-  JWT_TOKEN_LIFETIME,
-} = process.env;
+const jwtSecret = process.env.JWT_SECRET || 'enginnmavitaþetta';
+const tokenLifetime = process.env.JWT_TOKEN_LIFETIME || 60 * 60 * 24 * 31
 
 if (!jwtSecret) {
   console.error('JWT_SECRET not registered in .env');
   process.exit(1);
-}
-
-let tokenLifetime = 60 * 60 * 24 * 31; // mánuður
-
-if (JWT_TOKEN_LIFETIME) {
-  tokenLifetime = Number(JWT_TOKEN_LIFETIME);
 }
 
 const jwtOptions = {
