@@ -41,6 +41,31 @@ async function validateUser({
     }
   }
 
+  if (!patch || email || isEmpty(email)) {
+    if (typeof email !== 'string' || email.length === 0 || email.length > 64) {
+      validationMessages.push({
+        field: 'email',
+        message: 'Email is required, must not be empty or longer than 64 characters',
+      });
+    } else if (!validator.isEmail(email)) {
+      validationMessages.push({
+        field: 'email',
+        message: 'Email must be a real email',
+      });
+    }
+
+    if (typeof email === 'string') {
+      const user = await users.findByEmail(email);
+
+      if (user) {
+        validationMessages.push({
+          field: 'email',
+          message: 'Email is already registered',
+        });
+      }
+    }
+  }
+
   if (!patch || password || isEmpty(password)) {
     if (typeof password !== 'string' || password.length < 8) {
       validationMessages.push({
@@ -57,31 +82,6 @@ async function validateUser({
           break;
         }
       }
-    }
-  }
-
-  if (!patch || email || isEmpty(email)) {
-    if (typeof email !== 'string' || email.length === 0 || email.length > 64) {
-      validationMessages.push({
-        field: 'email',
-        message: 'Email is required, must not be empty or longer than 64 characters',
-      });
-    }
-
-    if (!validator.isEmail(email)) {
-      validationMessages.push({
-        field: 'email',
-        message: 'Email must be a real email',
-      });
-    }
-
-    const user = await users.findByEmail(email);
-
-    if (user) {
-      validationMessages.push({
-        field: 'email',
-        message: 'Email is already registered',
-      });
     }
   }
 
