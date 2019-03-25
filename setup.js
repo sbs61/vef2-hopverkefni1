@@ -51,7 +51,7 @@ async function main() {
 
   const products = [];
   const prodNames = [];
-  while (products.length < 5) {
+  while (products.length < 200) {
     const prodName = faker.commerce.productName();
     const prodPrice = parseInt(faker.commerce.price(), 10);
     const prodDesc = faker.lorem.paragraphs();

@@ -46,8 +46,7 @@ async function validateUser({
         field: 'password',
         message: 'Password must be at least eight letters',
       });
-    }
-    else {
+    } else {
       for (let i = 0; i < COMMONPASSWORDS.length; i += 1) {
         if (password === COMMONPASSWORDS[i]) {
           validationMessages.push({
@@ -179,8 +178,50 @@ async function validateCategory({
   return messages;
 }
 
+async function validateCart({
+  productId, quantity,
+} = {}, patch = false) {
+  const messages = [];
+  if (!patch || productId || isEmpty(productId)) {
+    if (productId == null) {
+      messages.push({
+        field: 'productId',
+        message: 'Product ID is required',
+      });
+    } else if (!(Number.isInteger(Number(productId)))) {
+      messages.push({
+        field: 'productId',
+        message: 'Product ID must be an integer',
+      });
+    }
+    if (Number.isInteger(Number(productId))) {
+      const product = await query('SELECT * FROM Products WHERE id = $1', [productId]);
+      if (product.rows.length === 0) {
+        messages.push({ field: 'productId', message: `Product with id: "${productId}" doesn't exist` });
+      }
+    }
+  }
+
+  if (!patch || quantity || isEmpty(quantity)) {
+    if (quantity == null) {
+      messages.push({
+        field: 'quantity',
+        message: 'Quantity is required',
+      });
+    } else if (!(Number.isInteger(Number(quantity)) && Number(quantity) > 0)) {
+      messages.push({
+        field: 'quantity',
+        message: 'Quantity must be an integer larger than 0',
+      });
+    }
+  }
+
+  return messages;
+}
+
 module.exports = {
   validateUser,
   validateProduct,
   validateCategory,
+  validateCart,
 };

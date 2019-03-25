@@ -23,6 +23,17 @@ const {
   categoryDeleteRoute,
 } = require('./products');
 
+const {
+  cartRoute,
+  cartPostRoute,
+  cartLineRoute,
+  cartLinePatchRoute,
+  cartLineDeleteRoute,
+  orderPostRoute,
+  ordersRoute,
+  orderRoute,
+} = require('./cart');
+
 function catchErrors(fn) {
   return (req, res, next) => fn(req, res, next).catch(next);
 }
@@ -87,4 +98,12 @@ router.get('/categories', catchErrors(categoryRoute));
 router.post('/categories', requireAdmin, catchErrors(createCategoryRoute));
 router.patch('/categories/:id', requireAdmin, catchErrors(categoryPatchRoute));
 router.delete('/categories/:id', requireAdmin, catchErrors(categoryDeleteRoute));
+router.get('/cart', requireAuth, catchErrors(cartRoute));
+router.post('/cart', requireAuth, catchErrors(cartPostRoute));
+router.get('/cart/line/:id', requireAuth, catchErrors(cartLineRoute));
+router.patch('/cart/line/:id', requireAuth, catchErrors(cartLinePatchRoute));
+router.delete('/cart/line/:id', requireAuth, catchErrors(cartLineDeleteRoute));
+router.post('/orders', requireAuth, catchErrors(orderPostRoute));
+router.get('/orders', requireAuth, catchErrors(ordersRoute));
+router.get('/orders/:id', requireAuth, catchErrors(orderRoute));
 module.exports = router;

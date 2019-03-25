@@ -24,17 +24,17 @@ CREATE TABLE Users (
 
 CREATE TABLE Orders (
   id SERIAL PRIMARY KEY,
-  isorder BOOLEAN DEFAULT FALSE,
+  is_order BOOLEAN DEFAULT FALSE,
   created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  order_user VARCHAR(128),
-  FOREIGN KEY (order_user) REFERENCES Users (username)
+  order_userId INT,
+  FOREIGN KEY (order_userId) REFERENCES Users (id)
 );
 
 CREATE TABLE Order_items (
+  id SERIAL PRIMARY KEY,
   product_no INT,
   order_id INT,
   quantity INT,
-  PRIMARY KEY(product_no, order_id),
   FOREIGN KEY (product_no) REFERENCES Products (id),
   FOREIGN KEY (order_id) REFERENCES Orders (id)
 );

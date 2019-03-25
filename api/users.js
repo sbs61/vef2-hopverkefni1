@@ -2,7 +2,6 @@ const { findById, updateUser } = require('../users');
 const { paged } = require('../db');
 const { validateUser } = require('../validation');
 
-// leyfum abstraction sem users.js gefur okkur að leka aðeins hérna
 async function usersRoute(req, res) {
   const { offset = 0 } = req.query;
   const users = await paged('SELECT * FROM users', { offset });

@@ -1,28 +1,30 @@
 const xss = require('xss');
-const { query, conditionalUpdate } = require('../db');
+const { query, paged, conditionalUpdate } = require('../db');
 const { validateProduct, validateCategory } = require('../validation');
 
 
 async function productsRoute(req, res) {
-  const { category, search } = req.query;
+  const {
+    offset = 0, limit = 10, category, search,
+  } = req.query;
   let filter = '';
-  const items = [];
+  const values = [];
 
   if (category != null && search == null) {
     filter = 'WHERE category = $1';
-    items.push(category);
+    values.push(category);
   } else if (category == null && search != null) {
     filter = 'WHERE name LIKE $1 OR descr LIKE $1';
-    items.push(`%${search}%`);
+    values.push(`%${search}%`);
   } else if (category != null && search != null) {
     filter = 'WHERE category = $1 AND (name LIKE $2 OR descr LIKE $2)';
-    items.push(category);
-    items.push(`%${search}%`);
+    values.push(category);
+    values.push(`%${search}%`);
   }
 
   const q = `SELECT * FROM Products ${filter} ORDER BY created desc`;
-  const products = await query(q, items);
-  return res.status(200).json(products.rows);
+  const products = await paged(q, { offset, limit, values });
+  return res.status(200).json(products.items);
 }
 
 async function productRoute(req, res) {
@@ -38,7 +40,7 @@ async function productRoute(req, res) {
     return res.status(404).json({ error: 'Product not found' });
   }
 
-  return res.status(200).json(product.rows);
+  return res.status(200).json(product.rows[0]);
 }
 
 async function productPatchRoute(req, res) {
@@ -198,7 +200,7 @@ async function categoryPatchRoute(req, res) {
   // Ath. hvort nafn sé nú þegar í gagnagrunn
   const nameChecker = await query('SELECT 1 FROM categories WHERE name = $1', values);
   if (nameChecker.rowCount === 1) {
-    return res.status(400).json({ error: 'Category name already exists'});
+    return res.status(400).json({ error: 'Category name already exists' });
   }
 
   const result = await conditionalUpdate('categories', id, fields, values);
