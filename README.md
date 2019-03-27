@@ -1,14 +1,15 @@
 # Hópur:
   
-## Sigurður Bjarni Sigurðsson, sbs61@hi.is
+Sigurður Bjarni Sigurðsson, sbs61@hi.is
   
-## Patrekur Hrafn Hallgrímsson, phh4@hi.is
+Patrekur Hrafn Hallgrímsson, phh4@hi.is
   
 # Innskráning:
-
-email: admin@admin.is
-password: blablablabla
  
+email: admin@admin.is
+   
+password: blablablabla
+  
 # Uppsetning:
 npm install 
  
