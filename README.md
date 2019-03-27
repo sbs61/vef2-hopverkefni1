@@ -1,3 +1,41 @@
+# Uppsetning:
+npm install 
+ 
+setja upp .env skrá á eftirfarandi hátt:
+DATABASE_URL=
+SESSION_SECRET=
+JWT_SECRET=
+JWT_TOKEN_LIFETIME =
+CLOUDINARY_URL=
+CLOUDINARY_CLOUD=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+ 
+node setup.js
+ 
+npm test 
+
+npm start 
+
+# Skipulag verkefnis:
+
+* `app.js` er inngangspunktur í verkefni og tengir auðkenningu og API
+* `auth.js`
+  - Stillir auðkenningu og exportar _subapp_ sem megin app notar
+  - Exportar middleware sem krefst auðkenningar og setur `req.user`
+* `api/` skilgreinir alla API endapunkta sem eru ekki auðkenning
+* `db.js` hjálparföll fyrir tengingar við gagnagrunn
+* `users.js` hjálparföll fyrir notendaumsjón
+* `validation.js` hjálparföll fyrir staðfestingu á gögnum
+* `setup.js` býr til faker gögn  og bætir í gagnagrunn
+
+# Dæmi um köll í vefþjónustu: 
+
+![alt text](https://i.gyazo.com/ac6e51dd37e6aa87feb8637abf06ca95.png)
+ 
+ 
+# Verkefnalýsing:
+
 # Admin user
 username: admin
  
