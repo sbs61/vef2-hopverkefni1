@@ -103,9 +103,9 @@ async function registerRoute(req, res) {
 }
 
 async function loginRoute(req, res) {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
-  const user = await users.findByUsername(username);
+  const user = await users.findByEmail(email);
 
   if (!user) {
     return res.status(401).json({ error: 'No such user' });

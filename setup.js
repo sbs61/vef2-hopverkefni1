@@ -49,6 +49,7 @@ async function main() {
     }
   }
 
+  // Búum til fylki af 1000 unique vörunöfnum
   const products = [];
   const prodNames = [];
   while (products.length < 1000) {
@@ -63,6 +64,7 @@ async function main() {
     }
   }
 
+  // Bætum vörunum í gagnagrunn
   for (const product of products) {
     try {
       await query('INSERT INTO Products (name, price, descr, img, category) VALUES ($1, $2, $3, $4, $5)', product);

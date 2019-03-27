@@ -2,6 +2,7 @@ const { findById, updateUser } = require('../users');
 const { paged } = require('../db');
 const { validateUser } = require('../validation');
 
+// Birtir alla users
 async function usersRoute(req, res) {
   const { offset, limit } = req.query;
   const slug = req.url;
@@ -15,6 +16,7 @@ async function usersRoute(req, res) {
   return res.json(users);
 }
 
+// Birtir einn user miðað við id
 async function userRoute(req, res) {
   const { id } = req.params;
 
@@ -29,6 +31,7 @@ async function userRoute(req, res) {
   return res.json(user);
 }
 
+// Breytir notenda
 async function userPatchRoute(req, res) {
   const { id } = req.params;
 
@@ -60,6 +63,7 @@ async function userPatchRoute(req, res) {
   return res.status(200).json(result);
 }
 
+// Birtir upplýsingar um logged in user
 async function meRoute(req, res) {
   const { id } = req.user;
 
@@ -74,6 +78,7 @@ async function meRoute(req, res) {
   return res.json(user);
 }
 
+// Breytir upplýsingum um logged in user
 async function mePatchRoute(req, res) {
   const { id } = req.user;
 

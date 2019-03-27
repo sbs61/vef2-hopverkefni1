@@ -29,6 +29,7 @@ async function query(sqlQuery, values = []) {
   return result;
 }
 
+// Birtir síður með limit of offset
 async function paged(sqlQuery, {
   slug = '', offset = 0, limit = 10, values = [], qString = '',
 }) {
@@ -51,6 +52,8 @@ async function paged(sqlQuery, {
   const cleanSlug = ((slug).split('?')[0]);
 
   let urls;
+
+  // Ef niðurstaða skilar fleiri en 10 línum, gefum hlekk á næstu síðu
   if (result.rows.length >= 10) {
     urls = {
       self: `http://127.0.0.1:3000${cleanSlug}?offset=${offset}&limit=${limit}${qString}`,

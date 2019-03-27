@@ -86,14 +86,14 @@ async function listRoute(req, res) {
 router.get('/', catchErrors(listRoute));
 router.get('/users', requireAdmin, catchErrors(usersRoute));
 router.get('/users/me', requireAuth, catchErrors(meRoute));
+router.patch('/users/me', requireAuth, catchErrors(mePatchRoute));
 router.get('/users/:id', requireAdmin, catchErrors(userRoute));
 router.patch('/users/:id', requireAdmin, catchErrors(userPatchRoute));
-router.patch('/users/me', requireAuth, catchErrors(mePatchRoute));
 router.get('/products', catchErrors(productsRoute));
+router.post('/products', requireAdmin, catchErrors(createProductRoute));
 router.get('/products/:id', catchErrors(productRoute));
 router.patch('/products/:id', requireAdmin, catchErrors(picRoute));
 router.delete('/products/:id', requireAdmin, catchErrors(productDeleteRoute));
-router.post('/products', requireAdmin, catchErrors(createProductRoute));
 router.get('/categories', catchErrors(categoryRoute));
 router.post('/categories', requireAdmin, catchErrors(createCategoryRoute));
 router.patch('/categories/:id', requireAdmin, catchErrors(categoryPatchRoute));

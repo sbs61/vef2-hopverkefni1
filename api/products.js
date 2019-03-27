@@ -23,6 +23,7 @@ cloudinary.config({
   api_secret: CLOUDINARY_API_SECRET,
 });
 
+// Birtir allar vörur
 async function productsRoute(req, res) {
   const {
     offset, limit, category, search,
@@ -30,8 +31,9 @@ async function productsRoute(req, res) {
   let filter = '';
   let qString = '';
   const values = [];
-
   const slug = req.url;
+
+  // Athugum hvort eitthvað query er  í slóðinni og breytum niðustöðu ef svo er
   if (category != null && search == null) {
     filter = 'WHERE category = $1';
     qString = `&category=${category}`;
@@ -47,6 +49,7 @@ async function productsRoute(req, res) {
     values.push(`%${search}%`);
   }
 
+  // Sækjum allar vörur, nýjustu fyrst
   const q = `SELECT * FROM Products ${filter} ORDER BY created desc`;
   const products = await paged(q, {
     slug, offset, limit, values, qString,
@@ -54,6 +57,7 @@ async function productsRoute(req, res) {
   return res.status(200).json(products);
 }
 
+// Birtir eina vöru miðað við id
 async function productRoute(req, res) {
   const { id } = req.params;
 
@@ -70,6 +74,7 @@ async function productRoute(req, res) {
   return res.status(200).json(product.rows[0]);
 }
 
+// Breytir vöru
 async function productPatchRoute(req, res) {
   const { id } = req.params;
   const { file: { path } = {} } = req;
@@ -85,9 +90,11 @@ async function productPatchRoute(req, res) {
   }
 
 
+  // Athugum hvort skrá er send inn með form-data
   if (path) {
     let upload = null;
 
+    // uploadum mynd á cloudinary
     try {
       upload = await cloudinary.v2.uploader.upload(path);
     } catch (error) {
@@ -98,7 +105,7 @@ async function productPatchRoute(req, res) {
       return res.status(400).json({ error: 'Unable to upload file to cloudinary:', path });
     }
 
-    const q = 'UPDATE products SET img = $1 WHERE id = $2 RETURNING *';
+    const q = 'UPDATE products SET img = $1, updated = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *';
 
     await query(q, [upload.secure_url, id]);
 
@@ -107,6 +114,7 @@ async function productPatchRoute(req, res) {
     return res.status(201).json(result.rows[0]);
   }
 
+  // Skoðum hvort inntök séu rétt útfyllt
   const validationMessage = await validateProduct(req.body, id, true);
 
   if (validationMessage.length > 0) {
@@ -129,6 +137,7 @@ async function productPatchRoute(req, res) {
     isset(req.body.category) ? xss(req.body.category) : null,
   ];
 
+  // Uppfærum vöru
   const result = await conditionalUpdate('Products', id, fields, values);
 
   if (!result) {
@@ -140,6 +149,10 @@ async function productPatchRoute(req, res) {
   return res.status(201).json(result.rows[0]);
 }
 
+/**
+ * Útfærum multer fyrir uploads ef file er sent inn
+ * með form-data og sendum svo áfram í productPatchRoute
+ */
 async function picRoute(req, res, next) {
   uploads.single('img')(req, res, (err) => {
     if (err) {
@@ -153,6 +166,7 @@ async function picRoute(req, res, next) {
   });
 }
 
+// Eyðir út vöru miðað við id
 async function productDeleteRoute(req, res) {
   const { id } = req.params;
 
@@ -171,6 +185,7 @@ async function productDeleteRoute(req, res) {
   return res.status(200).json('Product deleted');
 }
 
+// Býr til nýja vöru
 async function createProductRoute(req, res) {
   const {
     name, price, descr, category,
@@ -196,6 +211,7 @@ async function createProductRoute(req, res) {
   return res.json(result);
 }
 
+// Birtir categories síðu
 async function categoryRoute(req, res) {
   const { offset, limit } = req.query;
   const slug = req.url;
@@ -233,6 +249,7 @@ async function createCategoryRoute(req, res) {
   return res.status(201).json(result.rows);
 }
 
+// Breytir nafni á category
 async function categoryPatchRoute(req, res) {
   const { id } = req.params;
 
@@ -277,6 +294,7 @@ async function categoryPatchRoute(req, res) {
   return res.status(201).json(result.rows[0]);
 }
 
+// Eyðir út category miðað við id
 async function categoryDeleteRoute(req, res) {
   const { id } = req.params;
 
