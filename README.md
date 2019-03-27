@@ -1,3 +1,14 @@
+# Hópur:
+  
+## Sigurður Bjarni Sigurðsson, sbs61@hi.is
+  
+## Patrekur Hrafn Hallgrímsson, phh4@hi.is
+  
+# Innskráning:
+
+email: admin@admin.is
+password: blablablabla
+ 
 # Uppsetning:
 npm install 
  
@@ -31,7 +42,63 @@ npm start
 
 # Dæmi um köll í vefþjónustu: 
 
+GET á `/` skal skila lista af slóðum í mögulegar aðgerðir.
+
+### Notendur
+
+* `/users/`
+  * `GET` skilar síðu af notendum, aðeins ef notandi sem framkvæmir er stjórnandi
+* `/users/:id`
+  * `GET` skilar notanda, aðeins ef notandi sem framkvæmir er stjórnandi
+  * `PATCH` breytir notanda, þ.m.t. hvort viðkomandi sé stjórnandi, aðeins ef notandi sem framkvæmir er stjórnandi
+* `/users/register`
+  * `POST` staðfestir og býr til notanda. Skilar auðkenni og netfangi. Notandi sem búinn er til skal aldrei vera stjórnandi
+* `/users/login`
+  * `POST` með netfangi og lykilorði skilar token ef gögn rétt
+* `/users/me`
+  * `GET` skilar upplýsingum um notanda sem á token, auðkenni og netfangi, aðeins ef notandi innskráður
+  * `PATCH` uppfærir netfang, lykilorð eða bæði ef gögn rétt, aðeins ef notandi innskráður
+
+Aldrei skal skila eða sýna hash fyrir lykilorð.
+
+### Vörur
+
+* `/products`
+  * `GET` Skilar síðu af vörum raðað í dagsetningar röð, nýjustu vörur fyrst
+  * `POST` býr til nýja vöru ef hún er gild og notandi hefur rétt til að búa til vöru, aðeins ef notandi sem framkvæmir er stjórnandi
+* `/products?category={category}`
+  * `GET` Skilar síðu af vörum í flokk, raðað í dagsetningar röð, nýjustu vörur fyrst
+* `/products?search={query}`
+  * `GET` Skilar síðu af vörum þar sem `{query}` er í titli eða lýsingu, raðað í dagsetningar röð, nýjustu vörur fyrst
+  * Það er hægt að senda bæði `search` og `category` í einu
+* `/products/:id`
+  * `GET` sækir vöru
+  * `PATCH` uppfærir vöru, aðeins ef notandi sem framkvæmir er stjórnandi
+  * `DELETE` eyðir vöru, aðeins ef notandi sem framkvæmir er stjórnandi
+* `/categories`
+  * `GET` skilar síðu af flokkum
+  * `POST` býr til flokk ef gildur og skilar, aðeins ef notandi sem framkvæmir er stjórnandi
+* `/categories/:id`
+  * `PATCH` uppfærir flokk, aðeins ef notandi sem framkvæmir er stjórnandi
+  * `DELETE` eyðir flokk, aðeins ef notandi sem framkvæmir er stjórnandi
+
+### Karfa/pantanir
+
+* `/cart`
+  * `GET` skilar körfu fyrir notanda með öllum línum og reiknuðu heildarverði körfu, aðeins ef notandi er innskráður
+  * `POST` bætir vöru við í körfu, krefst fjölda og auðkennis á vöru, aðeins ef notandi er innskráður
+* `/cart/line/:id`
+  * `GET` skilar línu í körfu með fjölda og upplýsingum um vöru, aðeins ef notandi er innskráður
+  * `PATCH` uppfærir fjölda í línu, aðeins ef notandi er innskráður, aðeins fyrir línu í körfu sem notandi á
+  * `DELETE` eyðir línu úr körfu, aðeins ef notandi er innskráður, aðeins fyrir línu í körfu sem notandi á
+* `/orders`
+  * `GET` skilar síðu af pöntunum, nýjustu pantanir fyrst, aðeins pantanir notanda ef ekki stjórnandi, annars allar pantanir
+  * `POST` býr til pöntun úr körfu með viðeigandi gildum, aðeins ef notandi er innskráður
+* `/orders/:id`
+  * `GET` skilar pöntun með öllum línum, gildum pöntunar og reiknuðu heildarverði körfu, aðeins ef notandi á pöntun eða notandi er stjórnandi
+  
 ![alt text](https://i.gyazo.com/ac6e51dd37e6aa87feb8637abf06ca95.png)
+![alt text](https://i.gyazo.com/d2646bffd8aa285f42ab16a7f9d2b8b3.png)
  
  
 # Verkefnalýsing:
