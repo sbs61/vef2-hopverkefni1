@@ -104,11 +104,6 @@ Aldrei skal skila eða sýna hash fyrir lykilorð.
  
 # Verkefnalýsing:
 
-# Admin user
-username: admin
- 
-password: blablablabla
-
 # Hópverkefni 1
 
 Útfæra skal vefþjónustur fyrir vefbúð með:
