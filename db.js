@@ -56,11 +56,11 @@ async function paged(sqlQuery, {
   // Ef niðurstaða skilar fleiri en 10 línum, gefum hlekk á næstu síðu
   if (result.rows.length >= 10) {
     urls = {
-      self: `https://vef2-hopverkefni1.herokuapp.com/${cleanSlug}?offset=${offset}&limit=${limit}${qString}`,
-      next: `https://vef2-hopverkefni1.herokuapp.com/${cleanSlug}?offset=${nextOffset}&limit=${limit}${qString}`,
+      self: `https://vef2-hopverkefni1.herokuapp.com${cleanSlug}?offset=${offset}&limit=${limit}${qString}`,
+      next: `https://vef2-hopverkefni1.herokuapp.com${cleanSlug}?offset=${nextOffset}&limit=${limit}${qString}`,
     };
   } else {
-    urls = { self: `https://vef2-hopverkefni1.herokuapp.com/${cleanSlug}?offset=${offset}&limit=${limit}${qString}` };
+    urls = { self: `https://vef2-hopverkefni1.herokuapp.com${cleanSlug}?offset=${offset}&limit=${limit}${qString}` };
   }
   return {
     limit: cleanLimit,
