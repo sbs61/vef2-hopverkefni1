@@ -40,6 +40,8 @@ npm start
 * `users.js` hjálparföll fyrir notendaumsjón
 * `validation.js` hjálparföll fyrir staðfestingu á gögnum
 * `setup.js` býr til faker gögn  og bætir í gagnagrunn
+* `schema.sql` skilgreinir uppsetningu á gagnagrunni
+* `insert.sql` bætir við einum admin notenda í gagnagrunn
 
 # Dæmi um köll í vefþjónustu: 
 
