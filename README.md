@@ -14,14 +14,14 @@ password: blablablabla
 npm install 
  
 setja upp .env skrá á eftirfarandi hátt:
-DATABASE_URL=
-SESSION_SECRET=
-JWT_SECRET=
-JWT_TOKEN_LIFETIME =
-CLOUDINARY_URL=
-CLOUDINARY_CLOUD=
-CLOUDINARY_API_KEY=
-CLOUDINARY_API_SECRET=
+* DATABASE_URL=
+* SESSION_SECRET=
+* JWT_SECRET=
+* JWT_TOKEN_LIFETIME =
+* CLOUDINARY_URL=
+* CLOUDINARY_CLOUD=
+* CLOUDINARY_API_KEY=
+* CLOUDINARY_API_SECRET=
  
 node setup.js
  
@@ -76,7 +76,7 @@ Aldrei skal skila eða sýna hash fyrir lykilorð.
   * Það er hægt að senda bæði `search` og `category` í einu
 * `/products/:id`
   * `GET` sækir vöru
-  * `PATCH` uppfærir vöru, aðeins ef notandi sem framkvæmir er stjórnandi
+  * `PATCH` uppfærir vöru, aðeins ef notandi sem framkvæmir er stjórnandi, hægt að senda inn mynd sem form-data og lykil 'img'
   * `DELETE` eyðir vöru, aðeins ef notandi sem framkvæmir er stjórnandi
 * `/categories`
   * `GET` skilar síðu af flokkum
