@@ -234,9 +234,36 @@ async function validateCart({
   return messages;
 }
 
+async function validateOrder({
+  name, address,
+} = {}, patch = false) {
+  const messages = [];
+
+  if (!patch || name || isEmpty(name)) {
+    if ((typeof name !== 'string' || name.length === 0 || name.length > 128)) {
+      messages.push({
+        field: 'name',
+        message: 'Name is required and must not be empty',
+      });
+    }
+  }
+
+  if (!patch || address || isEmpty(address)) {
+    if ((typeof address !== 'string' || address.length === 0 || address.length > 128)) {
+      messages.push({
+        field: 'address',
+        message: 'Address is required and must not be empty',
+      });
+    }
+  }
+
+  return messages;
+}
+
 module.exports = {
   validateUser,
   validateProduct,
   validateCategory,
   validateCart,
+  validateOrder,
 };

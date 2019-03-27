@@ -70,7 +70,7 @@ async function productRoute(req, res) {
   return res.status(200).json(product.rows[0]);
 }
 
-async function productPatchRoute(req, res, next) {
+async function productPatchRoute(req, res) {
   const { id } = req.params;
   const { file: { path } = {} } = req;
 
@@ -83,8 +83,6 @@ async function productPatchRoute(req, res, next) {
   if (product.rows.length === 0) {
     return res.status(404).json({ error: 'Product not found' });
   }
-
-  console.log(path);
 
 
   if (path) {
@@ -103,6 +101,10 @@ async function productPatchRoute(req, res, next) {
     const q = 'UPDATE products SET img = $1 WHERE id = $2 RETURNING *';
 
     await query(q, [upload.secure_url, id]);
+
+    const result = await query('SELECT * FROM Products WHERE id = $1', [id]);
+
+    return res.status(201).json(result.rows[0]);
   }
 
   const validationMessage = await validateProduct(req.body, id, true);

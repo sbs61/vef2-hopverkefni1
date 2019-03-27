@@ -1,6 +1,6 @@
 /* eslint-disable no-await-in-loop */
 const { query, paged } = require('../db');
-const { validateCart } = require('../validation');
+const { validateCart, validateOrder } = require('../validation');
 
 async function cartRoute(req, res) {
   const { id } = req.user;
@@ -30,6 +30,9 @@ async function cartRoute(req, res) {
   }
 
   order.rows[0].total = totalPrice;
+
+  delete order.rows[0].name;
+  delete order.rows[0].address;
 
 
   return res.status(200).json(order.rows[0]);
@@ -181,19 +184,28 @@ async function cartLineDeleteRoute(req, res) {
 
 async function orderPostRoute(req, res) {
   const { id } = req.user;
+  const { name, address } = req.body;
 
   const orderId = await query('SELECT id FROM Orders WHERE order_userId = $1 AND is_order = false', [id]);
   if (orderId.rows.length === 0) {
     return res.status(404).json({ error: 'Cart not found' });
   }
 
+  const validationMessage = await validateOrder({
+    name, address,
+  });
+
+  if (validationMessage.length > 0) {
+    return res.status(400).json({ errors: validationMessage });
+  }
+
   const q = `
         UPDATE Orders
-          SET is_order = TRUE
-        WHERE order_userId = $1
+          SET is_order = TRUE, name = $1, address = $2
+        WHERE order_userId = $3
         RETURNING *`;
 
-  const result = await query(q, [id]);
+  const result = await query(q, [name, address, id]);
 
   return res.status(200).json(result.rows[0]);
 }
