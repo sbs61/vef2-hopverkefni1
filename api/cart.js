@@ -1,41 +1,38 @@
 /* eslint-disable no-await-in-loop */
-const { query } = require('../db');
+const { query, paged } = require('../db');
 const { validateCart } = require('../validation');
 
 async function cartRoute(req, res) {
   const { id } = req.user;
-  const message = [];
 
   let totalPrice = 0;
-  let userOrderId = await query('SELECT id from Orders WHERE order_userId = $1 AND is_order = false', [id]);
-  if (userOrderId.rows.length === 0) {
+  const order = await query('SELECT * from Orders WHERE order_userId = $1 AND is_order = false', [id]);
+  if (order.rows.length === 0) {
     return res.status(404).json({ error: 'Cart not found' });
   }
-  userOrderId = userOrderId.rows[0].id;
 
-  const result = await query('SELECT * FROM Order_items WHERE order_id = $1', [userOrderId]);
+  const userOrderId = order.rows[0].id;
 
+  const result = await query('SELECT * FROM Order_items WHERE order_id = $1 order by created desc', [userOrderId]);
+
+  order.rows[0].lines = [];
   for (let i = 0; i < result.rows.length; i += 1) {
     const productId = result.rows[i].product_no;
     const product = await query('SELECT * FROM Products WHERE id = $1', [productId]);
     const productPrice = product.rows[0].price;
-    const productName = product.rows[0].name;
     const productQuantity = result.rows[i].quantity;
 
     totalPrice += productPrice * productQuantity;
 
-    message.push({
-      'Product Name': productName,
-      Quantity: productQuantity,
-      Price: productPrice,
-    });
+    order.rows[0].lines.push(product.rows[0]);
+    order.rows[0].lines[i].quantity = productQuantity;
+    order.rows[0].lines[i].total = productPrice * productQuantity;
   }
 
-  message.push({
-    'Total Price': totalPrice,
-  });
+  order.rows[0].total = totalPrice;
 
-  return res.status(200).json(message);
+
+  return res.status(200).json(order.rows[0]);
 }
 
 async function cartPostRoute(req, res) {
@@ -74,6 +71,9 @@ async function cartPostRoute(req, res) {
 
   orderId = await query('SELECT id FROM Orders WHERE order_userId = $1 AND is_order = false', [id]);
   orderId = orderId.rows[0].id;
+
+  await query('UPDATE Orders SET updated = CURRENT_TIMESTAMP WHERE id = $1', [orderId]);
+
   const result = await query(q2, [productId, orderId, quantity]);
 
   return res.status(200).json(result.rows[0]);
@@ -82,7 +82,6 @@ async function cartPostRoute(req, res) {
 async function cartLineRoute(req, res) {
   const { id } = req.user;
   const lineNr = req.params.id - 1;
-  const message = [];
 
   if (!Number.isInteger(Number(lineNr))) {
     return res.status(404).json({ error: 'Cart line not found' });
@@ -94,7 +93,7 @@ async function cartLineRoute(req, res) {
     return res.status(404).json({ error: 'Cart line not found' });
   }
 
-  const result = await query('SELECT * FROM Order_items WHERE order_id = $1', [userOrderId.rows[0].id]);
+  const result = await query('SELECT * FROM Order_items WHERE order_id = $1 ORDER BY created desc', [userOrderId.rows[0].id]);
   if (result.rows[lineNr] === undefined) {
     return res.status(404).json({ error: 'Cart line not found' });
   }
@@ -102,16 +101,12 @@ async function cartLineRoute(req, res) {
   const productId = result.rows[lineNr].product_no;
   const product = await query('SELECT * FROM Products WHERE id = $1', [productId]);
   const productPrice = product.rows[0].price;
-  const productName = product.rows[0].name;
   const productQuantity = result.rows[lineNr].quantity;
 
-  message.push({
-    'Product Name': productName,
-    Quantity: productQuantity,
-    Price: productPrice,
-  });
+  product.rows[0].quantity = productQuantity;
+  product.rows[0].total = productPrice * productQuantity;
 
-  return res.status(200).json(message[0]);
+  return res.status(200).json(product.rows[0]);
 }
 
 async function cartLinePatchRoute(req, res) {
@@ -141,10 +136,12 @@ async function cartLinePatchRoute(req, res) {
     WHERE 
       id IN (
           SELECT id
-          FROM Order_items
+          FROM Order_items ORDER BY created desc
           LIMIT 1 OFFSET $2
       )
     RETURNING *`;
+
+  await query('UPDATE Orders SET updated = CURRENT_TIMESTAMP WHERE id = $1', [userOrderId]);
 
   const result = await query(q, [quantity, lineNr]);
 
@@ -172,7 +169,7 @@ async function cartLineDeleteRoute(req, res) {
       WHERE 
         id IN (
             SELECT id
-            FROM Order_items
+            FROM Order_items ORDER BY created desc
             LIMIT 1 OFFSET $1
         )
       RETURNING *`;
@@ -202,19 +199,21 @@ async function orderPostRoute(req, res) {
 }
 
 async function ordersRoute(req, res) {
+  const { offset = 0, limit = 10 } = req.query;
   const { id, admin } = req.user;
+  const values = id;
   let orders = [];
   if (admin) {
-    orders = await query('SELECT * FROM Orders WHERE is_order = TRUE ORDER BY created desc');
+    orders = await paged('SELECT * FROM Orders WHERE is_order = TRUE ORDER BY created desc', { offset, limit });
   } else {
-    orders = await query('SELECT * FROM Orders WHERE is_order = TRUE AND order_userId = $1 ORDER BY created desc', [id]);
+    orders = await paged('SELECT * FROM Orders WHERE is_order = TRUE AND order_userId = $1 ORDER BY created desc', { offset, limit, values });
   }
 
-  if (orders.rows.length === 0) {
+  if (orders.items.length === 0) {
     return res.status(404).json({ error: 'Orders not found' });
   }
 
-  return res.status(200).json(orders.rows);
+  return res.status(200).json(orders);
 }
 
 async function orderRoute(req, res) {
@@ -228,13 +227,13 @@ async function orderRoute(req, res) {
   let order = [];
 
   if (admin) {
-    order = await query('SELECT * FROM Order_items WHERE order_id = $1', [orderId]);
+    order = await query('SELECT * FROM Orders WHERE id = $1', [orderId]);
   } else {
     const q = `
     SELECT *
-    FROM Order_items
-    WHERE order_id = $1 AND
-    order_id IN (
+    FROM Orders
+    WHERE id = $1 AND
+    id IN (
         SELECT id FROM Orders
         WHERE order_userId = $2
     )`;
@@ -245,31 +244,28 @@ async function orderRoute(req, res) {
     return res.status(404).json({ error: 'Order not found' });
   }
 
-  const message = [];
+  const orderItems = await query('SELECT * FROM Order_items WHERE order_id = $1', [orderId]);
 
   let totalPrice = 0;
 
-  for (let i = 0; i < order.rows.length; i += 1) {
-    const productId = order.rows[i].product_no;
+  order.rows[0].lines = [];
+  for (let i = 0; i < orderItems.rows.length; i += 1) {
+    const productId = orderItems.rows[i].product_no;
     const product = await query('SELECT * FROM Products WHERE id = $1', [productId]);
     const productPrice = product.rows[0].price;
-    const productName = product.rows[0].name;
-    const productQuantity = order.rows[i].quantity;
+    const productQuantity = orderItems.rows[i].quantity;
 
     totalPrice += productPrice * productQuantity;
 
-    message.push({
-      'Product Name': productName,
-      Quantity: productQuantity,
-      Price: productPrice,
-    });
+    product.rows[0].quantity = productQuantity;
+    product.rows[0].total = productPrice * productQuantity;
+
+    order.rows[0].lines.push(product.rows[0]);
   }
 
-  message.push({
-    'Total Price': totalPrice,
-  });
+  order.rows[0].total = totalPrice;
 
-  return res.status(200).json(message);
+  return res.status(200).json(order.rows[0]);
 }
 
 

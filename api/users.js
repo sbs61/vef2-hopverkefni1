@@ -3,15 +3,16 @@ const { paged } = require('../db');
 const { validateUser } = require('../validation');
 
 async function usersRoute(req, res) {
-  const { offset = 0 } = req.query;
-  const users = await paged('SELECT * FROM users', { offset });
+  const { offset, limit } = req.query;
+  const slug = req.url;
+  const users = await paged('SELECT * FROM users', { offset, limit, slug });
 
   users.items.map((i) => {
     delete i.password; // eslint-disable-line
     return i;
   });
 
-  return res.json(users.items);
+  return res.json(users);
 }
 
 async function userRoute(req, res) {

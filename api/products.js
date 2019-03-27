@@ -5,26 +5,33 @@ const { validateProduct, validateCategory } = require('../validation');
 
 async function productsRoute(req, res) {
   const {
-    offset = 0, limit = 10, category, search,
+    offset, limit, category, search,
   } = req.query;
   let filter = '';
+  let qString = '';
   const values = [];
 
+  const slug = req.url;
   if (category != null && search == null) {
     filter = 'WHERE category = $1';
+    qString = `&category=${category}`;
     values.push(category);
   } else if (category == null && search != null) {
     filter = 'WHERE name LIKE $1 OR descr LIKE $1';
+    qString = `&search=${search}`;
     values.push(`%${search}%`);
   } else if (category != null && search != null) {
     filter = 'WHERE category = $1 AND (name LIKE $2 OR descr LIKE $2)';
+    qString = `&category=${category}&search=${search}`;
     values.push(category);
     values.push(`%${search}%`);
   }
 
   const q = `SELECT * FROM Products ${filter} ORDER BY created desc`;
-  const products = await paged(q, { offset, limit, values });
-  return res.status(200).json(products.items);
+  const products = await paged(q, {
+    slug, offset, limit, values, qString,
+  });
+  return res.status(200).json(products);
 }
 
 async function productRoute(req, res) {
@@ -84,6 +91,8 @@ async function productPatchRoute(req, res) {
     return res.status(400).json({ error: 'Nothing to patch' });
   }
 
+  await query('UPDATE Products SET updated = CURRENT_TIMESTAMP WHERE id = $1', [id]);
+
   return res.status(201).json(result.rows[0]);
 }
 
@@ -126,20 +135,20 @@ async function createProductRoute(req, res) {
     RETURNING *`;
 
   const result = await query(q, [name, price, descr, category]);
-  console.info(result);
 
   return res.json(result);
 }
 
 async function categoryRoute(req, res) {
-  const result = await query('SELECT * from categories');
-  console.info(result);
+  const { offset, limit } = req.query;
+  const slug = req.url;
+  const result = await paged('SELECT * from categories ORDER BY id', { offset, limit, slug });
 
-  if (result.rowCount === 0) {
+  if (result.items.length === 0) {
     return res.status(404).json({ error: 'Categories not found' });
   }
 
-  return res.json(result.rows);
+  return res.json(result);
 }
 
 async function createCategoryRoute(req, res) {
@@ -163,7 +172,6 @@ async function createCategoryRoute(req, res) {
     RETURNING *`;
 
   const result = await query(q, [name]);
-  console.info(result);
 
   return res.status(201).json(result.rows);
 }
@@ -214,7 +222,7 @@ async function categoryPatchRoute(req, res) {
 
 async function categoryDeleteRoute(req, res) {
   const { id } = req.params;
-  console.info(id);
+
   if (!Number.isInteger(Number(id))) {
     return res.status(404).json({ error: 'Category not found' });
   }
@@ -225,7 +233,7 @@ async function categoryDeleteRoute(req, res) {
     return res.status(404).json({ error: 'Category not found' });
   }
 
-  query('DELETE FROM categories WHERE id = $1', [id]);
+  await query('DELETE FROM categories WHERE id = $1', [id]);
 
   return res.status(200).json('Category deleted');
 }

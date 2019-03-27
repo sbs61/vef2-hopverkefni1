@@ -29,7 +29,9 @@ async function query(sqlQuery, values = []) {
   return result;
 }
 
-async function paged(sqlQuery, { offset = 0, limit = 10, values = [] }) {
+async function paged(sqlQuery, {
+  slug = '', offset = 0, limit = 10, values = [], qString = '',
+}) {
   const sqlLimit = values.length + 1;
   const sqlOffset = values.length + 2;
   const pagedQuery = `${sqlQuery} LIMIT $${sqlLimit} OFFSET $${sqlOffset}`;
@@ -44,10 +46,24 @@ async function paged(sqlQuery, { offset = 0, limit = 10, values = [] }) {
 
   const result = await query(pagedQuery, combinedValues);
 
+  const nextOffset = parseInt(offset, 10) + 10;
+
+  const cleanSlug = ((slug).split('?')[0]);
+
+  let urls;
+  if (result.rows.length >= 10) {
+    urls = {
+      self: `http://127.0.0.1:3000${cleanSlug}?offset=${offset}&limit=${limit}${qString}`,
+      next: `http://127.0.0.1:3000${cleanSlug}?offset=${nextOffset}&limit=${limit}${qString}`,
+    };
+  } else {
+    urls = { self: `http://127.0.0.1:3000${cleanSlug}?offset=${offset}&limit=${limit}${qString}` };
+  }
   return {
     limit: cleanLimit,
     offset: cleanOffset,
     items: result.rows,
+    _links: urls,
   };
 }
 
