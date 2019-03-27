@@ -1,7 +1,27 @@
+const cloudinary = require('cloudinary');
+const multer = require('multer');
+
 const xss = require('xss');
 const { query, paged, conditionalUpdate } = require('../db');
 const { validateProduct, validateCategory } = require('../validation');
 
+const uploads = multer({ dest: './temp' });
+
+const {
+  CLOUDINARY_CLOUD,
+  CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET,
+} = process.env;
+
+if (!CLOUDINARY_CLOUD || !CLOUDINARY_API_KEY || !CLOUDINARY_API_SECRET) {
+  console.warn('Missing cloudinary config, uploading images will not work');
+}
+
+cloudinary.config({
+  cloud_name: CLOUDINARY_CLOUD,
+  api_key: CLOUDINARY_API_KEY,
+  api_secret: CLOUDINARY_API_SECRET,
+});
 
 async function productsRoute(req, res) {
   const {
@@ -50,8 +70,9 @@ async function productRoute(req, res) {
   return res.status(200).json(product.rows[0]);
 }
 
-async function productPatchRoute(req, res) {
+async function productPatchRoute(req, res, next) {
   const { id } = req.params;
+  const { file: { path } = {} } = req;
 
   if (!Number.isInteger(Number(id))) {
     return res.status(404).json({ error: 'Product not found' });
@@ -61,6 +82,27 @@ async function productPatchRoute(req, res) {
 
   if (product.rows.length === 0) {
     return res.status(404).json({ error: 'Product not found' });
+  }
+
+  console.log(path);
+
+
+  if (path) {
+    let upload = null;
+
+    try {
+      upload = await cloudinary.v2.uploader.upload(path);
+    } catch (error) {
+      if (error.http_code && error.http_code === 400) {
+        return res.status(400).json({ error: error.message });
+      }
+
+      return res.status(400).json({ error: 'Unable to upload file to cloudinary:', path });
+    }
+
+    const q = 'UPDATE products SET img = $1 WHERE id = $2 RETURNING *';
+
+    await query(q, [upload.secure_url, id]);
   }
 
   const validationMessage = await validateProduct(req.body, id, true);
@@ -94,6 +136,19 @@ async function productPatchRoute(req, res) {
   await query('UPDATE Products SET updated = CURRENT_TIMESTAMP WHERE id = $1', [id]);
 
   return res.status(201).json(result.rows[0]);
+}
+
+async function picRoute(req, res, next) {
+  uploads.single('img')(req, res, (err) => {
+    if (err) {
+      if (err.message === 'Unexpected field') {
+        return res.status(400).json({ error: 'File key must be "img"' });
+      }
+      return next(err);
+    }
+
+    return productPatchRoute(req, res, next);
+  });
 }
 
 async function productDeleteRoute(req, res) {
@@ -248,4 +303,5 @@ module.exports = {
   createCategoryRoute,
   categoryPatchRoute,
   categoryDeleteRoute,
+  picRoute,
 };

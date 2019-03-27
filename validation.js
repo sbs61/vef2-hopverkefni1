@@ -159,6 +159,20 @@ async function validateProduct({
     }
   }
 
+  if (!patch || price || isEmpty(price)) {
+    if (price == null) {
+      messages.push({
+        field: 'price',
+        message: 'Price is required',
+      });
+    } else if (!(Number.isInteger(Number(price)) && Number(price) > 0)) {
+      messages.push({
+        field: 'price',
+        message: 'Price must be an integer larger than 0',
+      });
+    }
+  }
+
   return messages;
 }
 

@@ -21,6 +21,7 @@ const {
   createCategoryRoute,
   categoryPatchRoute,
   categoryDeleteRoute,
+  picRoute,
 } = require('./products');
 
 const {
@@ -91,7 +92,7 @@ router.patch('/users/:id', requireAdmin, catchErrors(userPatchRoute));
 router.patch('/users/me', requireAuth, catchErrors(mePatchRoute));
 router.get('/products', catchErrors(productsRoute));
 router.get('/products/:id', catchErrors(productRoute));
-router.patch('/products/:id', requireAdmin, catchErrors(productPatchRoute));
+router.patch('/products/:id', requireAdmin, catchErrors(picRoute));
 router.delete('/products/:id', requireAdmin, catchErrors(productDeleteRoute));
 router.post('/products', requireAdmin, catchErrors(createProductRoute));
 router.get('/categories', catchErrors(categoryRoute));

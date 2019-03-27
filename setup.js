@@ -55,7 +55,7 @@ async function main() {
     const prodName = faker.commerce.productName();
     const prodPrice = parseInt(faker.commerce.price(), 10);
     const prodDesc = faker.lorem.paragraphs();
-    const prodImg = `img/img${Math.floor(Math.random() * 20)}.jpg`;
+    const prodImg = `https://res.cloudinary.com/university-of-iceland/image/upload/v1553692305/img${Math.floor(Math.random() * 20)}.jpg`;
     const prodCat = categories[Math.floor(Math.random() * categories.length)];
     if (prodNames.indexOf(prodName) === -1) {
       prodNames.push(prodName);
