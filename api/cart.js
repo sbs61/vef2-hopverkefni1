@@ -94,7 +94,7 @@ async function cartPostRoute(req, res) {
 
   const result = await query(q2, [productId, orderId, quantity]);
 
-  return res.status(200).json(result.rows[0]);
+  return res.status(201).json(result.rows[0]);
 }
 
 // Birtum línu í körfu
@@ -233,7 +233,7 @@ async function orderPostRoute(req, res) {
 
   const result = await query(q, [name, address, id]);
 
-  return res.status(200).json(result.rows[0]);
+  return res.status(201).json(result.rows[0]);
 }
 
 // Sækir pantanir

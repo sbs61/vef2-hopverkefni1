@@ -208,7 +208,7 @@ async function createProductRoute(req, res) {
 
   const result = await query(q, [name, price, descr, category]);
 
-  return res.json(result);
+  return res.status(201).json(result);
 }
 
 // Birtir categories síðu
@@ -221,7 +221,7 @@ async function categoryRoute(req, res) {
     return res.status(404).json({ error: 'Categories not found' });
   }
 
-  return res.json(result);
+  return res.status(200).json(result);
 }
 
 async function createCategoryRoute(req, res) {
